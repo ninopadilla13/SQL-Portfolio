@@ -1,0 +1,20 @@
+This file contains the SQL queries used to visualize Covid-19 data on Tableau. It aims to see the distribution of cases per country and continent. 
+
+https://public.tableau.com/app/profile/noel.joseph.padilla/viz/Covid-19Dashboard_16641943204920/Covid19_Dashboard
+
+
+--- Group Number of Global Cases by date
+SELECT date, sum(new_cases) as total_cases, sum(new_deaths) as total_deaths, sum(new_deaths)/sum(new_cases)*100 as death_percent
+FROM `optical-office-345823.covid19.covid_deaths`
+WHERE continent is NOT NULL
+GROUP BY date
+ORDER BY 1,2
+
+
+
+--- Break Things By Continent 
+SELECT location, MAX(cast(total_deaths as int)) as totaldeathcount
+FROM `optical-office-345823.covid19.covid_deaths`
+WHERE continent is NOT null
+GROUP BY location
+ORDER BY totaldeathcount DESC
