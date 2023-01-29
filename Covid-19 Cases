@@ -11,10 +11,23 @@ GROUP BY date
 ORDER BY 1,2
 
 
+--- Look at countries w/ highest infection rate compared to population
+SELECT location, population, MAX(total_cases) as highestinfectioncount, MAX(total_cases/population)*100 as populationinfectedpercent
+FROM `optical-office-345823.covid19.covid_deaths`
+GROUP BY population, location
+ORDER BY populationinfectedpercent DESC
 
---- Break Things By Continent 
+
+--- Show countries with highest death count per population
 SELECT location, MAX(cast(total_deaths as int)) as totaldeathcount
 FROM `optical-office-345823.covid19.covid_deaths`
 WHERE continent is NOT null
 GROUP BY location
 ORDER BY totaldeathcount DESC
+
+
+-- Looking at countries w/ highest infection rate compared to population
+SELECT location, population, MAX(total_cases) as highestinfectioncount, MAX(total_cases/population)*100 as populationinfectedpercent
+FROM `optical-office-345823.covid19.covid_deaths`
+GROUP BY population, location
+ORDER BY populationinfectedpercent DESC
