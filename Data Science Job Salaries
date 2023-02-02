@@ -1,0 +1,85 @@
+This file contains SQL Queries used to answer questions about salaries of different Data Science jobs. This analysis aims to answer 5 questions:
+1. What is the average salary per data science job? 
+2. What are the highest paying entry level data science jobs
+3. What is the lowest paying entry level data science job? 
+4. Does company location affect salary?
+5. Does company size affect salary? 
+
+The data was taken from Kaggle (https://www.kaggle.com/datasets/ruchi798/data-science-job-salaries)
+
+
+--- 1. What is the average salary per data science job? 
+SELECT job_title, ROUND(AVG(salary_in_usd), 2) AS Average_salary
+FROM `optical-office-345823.data_salaries.data_salaries`
+GROUP BY job_title
+ORDER BY average_salary DESC
+
+
+
+--- 2. What are the highest paying entry level data science jobs
+WITH table1 AS
+(SELECT job_title, experience_level, salary_in_usd, 
+		RANK() OVER (PARTITION BY job_title, experience_level ORDER BY salary_in_usd DESC) AS job_rank
+		 FROM `optical-office-345823.data_salaries.data_salaries`
+WHERE experience_level = 'EN')
+
+SELECT job_rank, job_title, experience_level, salary_in_usd
+FROM table1
+WHERE job_rank = 1
+ORDER BY salary_in_usd DESC
+
+Answer: Machine Learning Engineer at $250,000 
+
+
+
+--- 3. What is the lowest paying entry level data science job? 
+SELECT MIN(salary_in_usd) AS lowest_salary, job_title
+FROM `optical-office-345823.data_salaries.data_salaries`
+WHERE experience_level = 'EN'
+GROUP BY job_title
+ORDER BY lowest_salary
+
+Answer: Data Scientist at $4,000 (this appears to be too low; it might be an outlier) 
+
+
+
+--- 4. Does company location affect salary? 
+SELECT CASE WHEN company_location = 'US' 
+		 THEN 'In the US'
+		 ELSE 'Not in US' 
+		 END AS company_loc_category,
+		 ROUND(AVG(salary_in_usd), 2) AS avg_salary
+
+FROM `optical-office-345823.data_salaries.data_salaries`
+
+GROUP BY CASE WHEN company_location = 'US' 
+		 THEN 'In the US'
+		 ELSE 'Not in US' END
+     
+Answer: Not in US - Average Salary is $67,560.27
+        In US     - Average Salary is $144,055.26
+It appears that US companies tend to pay more, with a higher average salary. 
+
+
+
+--- 5. Does company size affect salary? 
+
+SELECT CASE WHEN company_size = 'L' THEN 'Large Company'
+			      WHEN company_size = 'M' THEN 'Medium Company'
+			      WHEN company_size = 'S' THEN 'Small Company'
+		 ELSE NULL 
+     END AS new_company_size,
+		 ROUND(AVG(salary_in_usd), 2) AS avg_salary
+
+FROM `optical-office-345823.data_salaries.data_salaries`
+
+GROUP BY CASE WHEN company_size = 'L' THEN 'Large Company'
+			        WHEN company_size = 'M' THEN 'Medium Company'
+			        WHEN company_size = 'S' THEN 'Small Company'
+		 ELSE NULL END
+
+Answer: Large Company  - Average Salary is $119,242.99
+        Medium Company - Average Salary is $116,905.47
+        Small Company  - Average Salary is $77,632.67
+
+Yes, Large companies tend to pay more.
